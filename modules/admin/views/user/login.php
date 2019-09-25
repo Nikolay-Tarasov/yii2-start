@@ -10,6 +10,14 @@ $this->title = Yii::t('rbac-admin', 'Вход');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
+
+<?php if( Yii::$app->session->hasFlash('email_error') ): ?>
+ <div class="alert alert-danger alert-dismissible" role="alert">
+ <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+ <?php echo Yii::$app->session->getFlash('email_error'); ?>
+ </div>
+<?php endif;?>
+
 <?php if ($url and !$code): ?>
     <a href="<?= $url ?>"><?= Html::img('@web/upload/images/vk-login.png')?> Вход через VK</a>
 <?php endif; ?>

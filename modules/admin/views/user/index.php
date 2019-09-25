@@ -21,7 +21,23 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-            'username',
+            [
+                'attribute' => 'main_photo',
+                'format' => 'html',
+                'value' => function($model) {
+                    if($model->main_photo == 'upload/images/no-avatar.png'){
+                        return Html::img("@web/".$model->main_photo, ['width' => '50px']);
+                    }
+                    return Html::img($model->main_photo, ['width' => '50px']);
+                },
+            ],
+            [
+                'attribute' => 'username',
+                'format' => 'html',
+                'value' => function($model){
+                    return Html::a($model->username, ['user/view', 'id' => $model->id], ['target'=>'_blank']);
+                }
+                ],
             'email:email',
             [
                 'attribute' => 'status',

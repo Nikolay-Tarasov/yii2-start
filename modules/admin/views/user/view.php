@@ -46,6 +46,16 @@ $controllerId = $this->context->uniqueId . '/';
     DetailView::widget([
         'model' => $model,
         'attributes' => [
+            [
+                'attribute' => 'main_photo',
+                'format' => 'html',
+                'value' => function($model) {
+                    if($model->main_photo == 'upload/images/no-avatar.png'){
+                        return Html::img("@web/".$model->main_photo, ['width' => '50px']);
+                    }
+                    return Html::img($model->main_photo, ['width' => '50px']);
+                },
+            ],
             'username',
             'email:email',
             'created_at:date',

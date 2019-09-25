@@ -148,19 +148,24 @@ class UserController extends Controller
                     'fields' => array('city', 'photo', 'email'),
                 ));
                 $vk_id = User::findOne(['vk_id' => $response['user_id']]);
+                $email = User::findOne(['email' => $response['email']]);
                 if(!$vk_id){
-                    $class = Yii::$app->getUser()->identityClass ? : 'app\modules\admin\models\User';
-                    $signup = new $class();
-                    $signup->vk_id = $response['user_id'];
-                    $signup->username = $info[0]['first_name'].' '.$info[0]['last_name'];
-                    $signup->email = $response['email'];
-                    $signup->main_photo = $info[0]['photo'];
-                    $signup->setPassword(NULL);
-                    $signup->generateAuthKey();
-                    $signup->save();
-                    if(Yii::$app->user->login(User::findOne(['vk_id' => $response['user_id']]))){
-                        return $this->goHome();
-                    }
+                        if(User::findOne(['email' => $response['email']])){
+                            Yii::$app->session->setFlash('email_error', "Пользователь с почтой $email->email уже зарегистрирован");
+                            return $this->redirect(['user/login']);  
+                        }
+                        $class = Yii::$app->getUser()->identityClass ? : 'app\modules\admin\models\User';
+                        $signup = new $class();
+                        $signup->vk_id = $response['user_id'];
+                        $signup->username = $info[0]['first_name'].' '.$info[0]['last_name'];
+                        $signup->email = $response['email'];
+                        $signup->main_photo = $info[0]['photo'];
+                        $signup->setPassword(NULL);
+                        $signup->generateAuthKey();
+                        $signup->save();
+                        if(Yii::$app->user->login(User::findOne(['vk_id' => $response['user_id']]))){
+                            return $this->goHome();
+                        }
                 } else {
                     Yii::$app->user->login($vk_id);
                     return $this->goHome();
