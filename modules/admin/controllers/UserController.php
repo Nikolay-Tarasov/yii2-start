@@ -2,6 +2,13 @@
 
 namespace app\modules\admin\controllers;
 
+use VK\OAuth\VKOAuth;
+use VK\Client\VKApiClient;
+use VK\OAuth\VKOAuthDisplay;
+use VK\OAuth\Scopes\VKOAuthGroupScope;
+use VK\OAuth\Scopes\VKOAuthUserScope;
+use VK\OAuth\VKOAuthResponseType;
+
 use app\modules\admin\components\UserStatus;
 use app\modules\admin\models\form\ChangePassword;
 use app\modules\admin\models\form\Login;
@@ -124,12 +131,50 @@ class UserController extends Controller
         if ($model->load(Yii::$app->getRequest()->post()) && $model->login()) {
             return $this->goBack();
         } else {
+            $oauth = new VKOAuth();
+            $client_id = \Yii::$app->vk->client_id;
+            $redirect_uri = \Yii::$app->vk->redirect_uri;
+            $display = VKOAuthDisplay::POPUP;
+            $client_secret = \Yii::$app->vk->client_secret;
+            $scope = array(VKOAuthUserScope::FRIENDS, VKOAuthUserScope::EMAIL, VKOAuthUserScope::OFFLINE,);
+            $state = \Yii::$app->vk->state;
+            $url = $oauth->getAuthorizeUrl(VKOAuthResponseType::CODE, $client_id, $redirect_uri, $display, $scope, $state);
+            if(\Yii::$app->request->get('code') and !$code){
+                $code = \Yii::$app->request->get('code');
+                $response = $oauth->getAccessToken($client_id, $client_secret, $redirect_uri, $code);
+                $vk = new VKApiClient();
+                $info = $vk->users()->get($response['access_token'], array(
+                    'user_ids' => array($response['user_id']),
+                    'fields' => array('city', 'photo', 'email'),
+                ));
+                $vk_id = User::findOne(['vk_id' => $response['user_id']]);
+                if(!$vk_id){
+                    $class = Yii::$app->getUser()->identityClass ? : 'app\modules\admin\models\User';
+                    $signup = new $class();
+                    $signup->vk_id = $response['user_id'];
+                    $signup->username = $info[0]['first_name'].' '.$info[0]['last_name'];
+                    $signup->email = $response['email'];
+                    $signup->main_photo = $info[0]['photo'];
+                    $signup->setPassword(NULL);
+                    $signup->generateAuthKey();
+                    $signup->save();
+                    if(Yii::$app->user->login(User::findOne(['vk_id' => $response['user_id']]))){
+                        return $this->goHome();
+                    }
+                } else {
+                    Yii::$app->user->login($vk_id);
+                    return $this->goHome();
+                }
+            }
             return $this->render('login', [
                     'model' => $model,
+                    'url' => $url,
+                    'code' => $code,
+                    'info' => $info,
             ]);
         }
     }
-
+    
     /**
      * Logout
      * @return string

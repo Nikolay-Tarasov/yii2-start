@@ -15,10 +15,39 @@ $config = [
         'admin' => [
             'class' => 'app\modules\admin\Module',
         ],
-        /*
-        'admin' => [
-            'class' => 'mdm\admin\Module',
-        ],*/
+        'social' => [
+            // the module class
+            'class' => 'kartik\social\Module',
+
+            // the global settings for the disqus widget
+            'disqus' => [
+                'settings' => ['shortname' => 'DISQUS_SHORTNAME'] // default settings
+            ],
+
+            // the global settings for the facebook plugins widget
+            'facebook' => [
+                'app_id' => 'FACEBOOK_APP_ID',
+                'app_secret' => 'FACEBOOK_APP_SECRET',
+            ],
+
+            // the global settings for the google plugins widget
+            'google' => [
+                'clientId' => 'GOOGLE_API_CLIENT_ID',
+                'pageId' => 'GOOGLE_PLUS_PAGE_ID',
+                'profileId' => 'GOOGLE_PLUS_PROFILE_ID',
+            ],
+
+            // the global settings for the google analytic plugin widget
+            'googleAnalytics' => [
+                'id' => 'TRACKING_ID',
+                'domain' => 'TRACKING_DOMAIN',
+            ],
+
+            // the global settings for the twitter plugins widget
+            'twitter' => [
+                'screenName' => 'TWITTER_SCREEN_NAME'
+            ],
+        ],
     ],
     'components' => [
         'request' => [
@@ -43,6 +72,14 @@ $config = [
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
             'useFileTransport' => true,
+        ],
+        'vk' => [
+            'class' => 'VK\OAuth\VKOAuth',
+            'client_id' => '7147298',
+            'redirect_uri' => 'https://kino2/admin/user/login',
+            'display' => 'VKOAuthDisplay::POPUP',
+            'client_secret' => '1ltbkhtsW3urgsupDKTz',
+            'state' => 'string',
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

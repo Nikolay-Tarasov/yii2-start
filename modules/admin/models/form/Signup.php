@@ -65,4 +65,14 @@ class Signup extends Model
 
         return null;
     }
+    
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Придумайте логин',
+            'password' => 'Пароль',
+            'retypePassword' => 'Еще раз пароль',
+            'email' => 'Ваша почта',
+        ];
+    }
 }

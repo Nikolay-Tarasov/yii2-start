@@ -57,6 +57,7 @@ class Login extends Model
     public function login()
     {
         if ($this->validate()) {
+            //debug(Yii::$app->getUser()->login($this->getUser()));die;
             return Yii::$app->getUser()->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
         } else {
             return false;
@@ -71,10 +72,19 @@ class Login extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            $class = Yii::$app->getUser()->identityClass ? : 'mdm\admin\models\User';
+            $class = Yii::$app->getUser()->identityClass ? : 'app\modules\admin\models\User';
             $this->_user = $class::findByUsername($this->username);
         }
 
         return $this->_user;
+    }
+    
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Логин',
+            'password' => 'Пароль',
+            'rememberMe' => 'Запомнить',
+        ];
     }
 }
